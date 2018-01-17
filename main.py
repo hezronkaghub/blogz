@@ -18,21 +18,29 @@ class Blog(db.Model):
         self.body = body
 
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/', methods=['GET'])
 def new_post():
     return render_template('new_post.html', title="New Post")
 
 
-@app.route('/blog', methods=['POST','GET'])
-def blog():
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
+@app.route('/', methods=['POST'])
+def verify_post():
+    title = request.form['title']
+    body = request.form['body']
+    error = ''
+    if not title or not body:
+        error = 'Please complete form'
+        return render_template('new_post.html',error=error)
+    else:
         new_blog_entry = Blog(title,body)
         db.session.add(new_blog_entry)
         db.session.commit()
+    blog = Blog.query.all()
+    return render_template('blog.html', title="Blog list", blog=blog)
         
 
+@app.route('/blog', methods=['POST','GET'])
+def blog():
     blog = Blog.query.all()
     return render_template('blog.html', title="Blog list", blog=blog)
     
