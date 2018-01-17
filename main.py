@@ -18,12 +18,12 @@ class Blog(db.Model):
         self.body = body
 
 
-@app.route('/', methods=['GET'])
+@app.route('/newpost', methods=['GET'])
 def new_post():
     return render_template('new_post.html', title="New Post")
 
 
-@app.route('/', methods=['POST'])
+@app.route('/newpost', methods=['POST'])
 def verify_post():
     title = request.form['title']
     body = request.form['body']
