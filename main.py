@@ -27,16 +27,20 @@ def new_post():
 def verify_post():
     title = request.form['title']
     body = request.form['body']
-    error = ''
+    title_error = ''
+    body_error = ''
     if not title or not body:
-        error = 'Please complete form'
-        return render_template('new_post.html',error=error)
+        if not title:
+            title_error = 'Please add title'
+        if not body:
+            body_error = 'Please add post'
+        return render_template('new_post.html',title_error=title_error, body_error=body_error,title=title, body=body)    
     else:
         new_blog_entry = Blog(title,body)
         db.session.add(new_blog_entry)
         db.session.commit()
-    blog = Blog.query.all()
-    return render_template('blog.html', title="Blog list", blog=blog)
+        blog = Blog.query.all()
+        return render_template('blog.html', title="Blog list", blog=blog)
         
 
 @app.route('/blog', methods=['POST','GET'])

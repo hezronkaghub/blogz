@@ -4,12 +4,12 @@
 <form method='POST'>
     <label>
         Title:
-        <p class="error">{{error}}</p>
+        <p class="error">{{ title_error }}</p>
         <input type="text" name='title' />
     </label>
     <label>
         New Post:
-        <p class="error">{{error}}</p>    
+        <p class="error">{{ body_error }}</p>    
         <textarea name='body'></textarea>
     </label>
     <input type="submit" value='Add Post' />
