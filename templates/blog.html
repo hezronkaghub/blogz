@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-{% for blog in blog %}
-<a href="/one_blog?id={{ blog.id }}"><h1>{{blog.title}}</h1></a>
+{% for blog in all_blogs %}
+<a href="/blog?id={{ blog.id }}"><h1>{{blog.title}}</h1></a>
 <p>{{blog.body}}</p>
 <hr />
 {% endfor %}
