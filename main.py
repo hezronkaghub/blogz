@@ -20,7 +20,7 @@ class Blog(db.Model):
 
 @app.route('/newpost', methods=['GET'])
 def new_post():
-    return render_template('new_post.html', title="New Post")
+    return render_template('new_post.html')
 
 
 @app.route('/newpost', methods=['POST'])
@@ -39,8 +39,12 @@ def verify_post():
         new_blog_entry = Blog(title,body)
         db.session.add(new_blog_entry)
         db.session.commit()
-        blog = Blog.query.all()
-        return render_template('blog.html', title="Blog list", blog=blog)
+        blog_id = new_blog_entry.id
+        one_blog = Blog.query.get(blog_id)
+        title = one_blog.title
+        body = one_blog.body
+
+        return render_template('one_blog.html',title=title, body=body)
         
 
 @app.route('/blog', methods=['POST','GET'])
@@ -48,5 +52,14 @@ def blog():
     blog = Blog.query.all()
     return render_template('blog.html', title="Blog list", blog=blog)
     
+@app.route('/one_blog', methods=['GET'])
+def one_blog():
+    blog_id = request.args.get('id')
+    one_blog = Blog.query.get(blog_id)
+    title = one_blog.title
+    body = one_blog.body
+    return render_template('one_blog.html',title=title, body=body)
+       
+
 if __name__ == '__main__':
     app.run()
