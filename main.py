@@ -45,7 +45,7 @@ def new_post():
 @app.route('/all_blogs', methods=['GET'])
 def all_blog():
     all_blogs = Blog.query.all()
-    return render_template('all_blogs.html', title="Blog list", all_blogs=all_blogs)
+    return render_template('all_blogs.html', title="All Blogs", all_blogs=all_blogs)
     
 @app.route('/blog', methods=['GET'])
 def blog():
