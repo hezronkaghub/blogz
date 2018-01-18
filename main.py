@@ -38,21 +38,21 @@ def new_post():
             blog_by_id = Blog.query.get(new_blog_entry.id)
             title = blog_by_id.title
             body = blog_by_id.body
-            return render_template('one_blog.html',title=title, body=body)
+            return render_template('blog.html',title=title, body=body)
     else:
         return render_template('new_post.html')   
 
 @app.route('/all_blogs', methods=['GET'])
 def all_blog():
     all_blogs = Blog.query.all()
-    return render_template('blog.html', title="Blog list", all_blogs=all_blogs)
+    return render_template('all_blogs.html', title="Blog list", all_blogs=all_blogs)
     
 @app.route('/blog', methods=['GET'])
 def blog():
     blog_by_id = Blog.query.get(request.args.get('id'))
     title = blog_by_id.title
     body = blog_by_id.body
-    return render_template('one_blog.html',title=title, body=body)
+    return render_template('blog.html',title=title, body=body)
        
 
 if __name__ == '__main__':
