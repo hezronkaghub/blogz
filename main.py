@@ -18,46 +18,40 @@ class Blog(db.Model):
         self.body = body
 
 
-@app.route('/newpost', methods=['GET'])
+@app.route('/newpost', methods=['GET','POST'])
 def new_post():
-    return render_template('new_post.html')
-
-
-@app.route('/newpost', methods=['POST'])
-def verify_post():
-    title = request.form['title']
-    body = request.form['body']
-    title_error = ''
-    body_error = ''
-    if not title or not body:
-        if not title:
-            title_error = 'Please add title'
-        if not body:
-            body_error = 'Please add post'
-        return render_template('new_post.html',title_error=title_error, body_error=body_error,title=title, body=body)    
+    if request.method == 'POST':
+        title = request.form['title']
+        body = request.form['body']
+        title_error = ''
+        body_error = ''
+        if not title or not body:
+            if not title:
+                title_error = 'Please add title'
+            if not body:
+                body_error = 'Please add post'
+            return render_template('new_post.html',title_error=title_error, body_error=body_error,title=title, body=body)    
+        else:
+            new_blog_entry = Blog(title,body)
+            db.session.add(new_blog_entry)
+            db.session.commit()
+            blog_by_id = Blog.query.get(new_blog_entry.id)
+            title = blog_by_id.title
+            body = blog_by_id.body
+            return render_template('one_blog.html',title=title, body=body)
     else:
-        new_blog_entry = Blog(title,body)
-        db.session.add(new_blog_entry)
-        db.session.commit()
-        blog_id = new_blog_entry.id
-        one_blog = Blog.query.get(blog_id)
-        title = one_blog.title
-        body = one_blog.body
+        return render_template('new_post.html')   
 
-        return render_template('one_blog.html',title=title, body=body)
-        
-
-@app.route('/blog', methods=['POST','GET'])
-def blog():
-    blog = Blog.query.all()
-    return render_template('blog.html', title="Blog list", blog=blog)
+@app.route('/all_blogs', methods=['GET'])
+def all_blog():
+    all_blogs = Blog.query.all()
+    return render_template('blog.html', title="Blog list", all_blogs=all_blogs)
     
-@app.route('/one_blog', methods=['GET'])
-def one_blog():
-    blog_id = request.args.get('id')
-    one_blog = Blog.query.get(blog_id)
-    title = one_blog.title
-    body = one_blog.body
+@app.route('/blog', methods=['GET'])
+def blog():
+    blog_by_id = Blog.query.get(request.args.get('id'))
+    title = blog_by_id.title
+    body = blog_by_id.body
     return render_template('one_blog.html',title=title, body=body)
        
 
