@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:DaveG666@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:abc123@localhost:8889/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -18,7 +18,7 @@ class Blog(db.Model):
         self.body = body
 
 
-@app.route('/newpost', methods=['GET','POST'])
+@app.route('/newpost', methods=['GET', 'POST'])
 def new_post():
     if request.method == 'POST':
         title = request.form['title']
@@ -30,7 +30,8 @@ def new_post():
                 title_error = 'Please add title'
             if not body:
                 body_error = 'Please add post'
-            return render_template('new_post.html',title_error=title_error, body_error=body_error,title=title, body=body)    
+            return render_template('new_post.html',title_error=title_error,
+                   body_error=body_error,title=title, body=body)    
         else:
             new_blog_entry = Blog(title,body)
             db.session.add(new_blog_entry)
@@ -40,7 +41,7 @@ def new_post():
             body = blog_by_id.body
             return render_template('blog.html',title=title, body=body)
     else:
-        return render_template('new_post.html')   
+        return render_template('new_post.html')
 
 @app.route('/all_blogs', methods=['GET'])
 def all_blog():
