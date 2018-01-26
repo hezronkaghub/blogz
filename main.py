@@ -40,14 +40,9 @@ def sign_up():
         password = request.form['password']
         verify = request.form['verify']
 
-        if not username or not password:
-            if not username:
-                username_error = 'Please enter username'
-                password = ''
-                return render_template('signup.html',username_error=username_error)
-            if not password:
-                password_error = 'Please enter password'
-                return render_template('signup.html',username=username,password_error=password_error)
+        if not username or not password or not verify:
+            form_error = 'One or more fields are invalid'        
+            return render_template('signup.html',form_error=form_error)
         
         if verify != password:
             password = ''
@@ -74,11 +69,23 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        
+        if not user:
+            password = ''
+            username = ''
+            username_error = 'Username does not exist'
+            return render_template('login.html',username_error=username_error)
+        
+        elif user.password != password:
+            password = ''
+            username = ''
+            password_error = 'Password is incorrect'
+            return render_template('login.html', password_error=password_error)           
+        
+        else:
             session['username'] = username
             return redirect('/newpost')
-        else:
-            return redirect('/login')
+    
     return render_template('login.html')
 
 
