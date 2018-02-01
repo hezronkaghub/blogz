@@ -4,16 +4,20 @@
         <title>{{title}}</title>
         <style type="text/css">
             label {display:block; margin:5px;}
-            
+            h4 {
+                display:inline;
+            }
             .error {color:red;
             }
         </style>
     </head>
 <body>
     <nav>
+        <a href="/">Home</a>
         <a href="/newpost">Add Post</a>
-        <a href="/all_blogs">View Blogs</a>
-        <a href="/login">Logout</a>
+        <a href="/blog">View Blogs</a>
+        <a href="/login">Login</a>
+        <a href="/logout">Logout</a>
     </nav>
     {% block content %}
     {% endblock %}
