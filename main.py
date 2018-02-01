@@ -32,21 +32,32 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+@app.before_request
+def require_login():
+    allowed_routes = ['index','login', 'sign_up','all_blogs','blog']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
+
+@app.route('/', methods=['GET'])
+def index():
+    all_users = User.query.all()
+    return render_template('index.html',all_users=all_users)
+
 
 @app.route('/signup', methods=['POST', 'GET'])
 def sign_up():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        verify = request.form['verify']
+        verify_password = request.form['verify']
 
-        if not username or not password or not verify:
+        if not username or not password or not verify_password or (len(username) < 3 or len(password) < 3):
             form_error = 'One or more fields are invalid'        
             return render_template('signup.html',form_error=form_error)
         
-        if verify != password:
+        if verify_password != password:
             password = ''
-            verify = ''
+            verify_password = ''
             verify_error='Passwords do not match'
             return render_template('signup.html',verify_error=verify_error,username=username)
         
@@ -92,7 +103,7 @@ def login():
 @app.route('/logout')
 def logout():
     del session['username']
-    return redirect('/login')
+    return redirect('/blog')
 
 
 @app.route('/newpost', methods=['GET', 'POST'])
@@ -100,6 +111,7 @@ def new_post():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        owner = User.query.filter_by(username=session['username']).first()
         title_error = ''
         body_error = ''
         if not title or not body:
@@ -110,29 +122,39 @@ def new_post():
             return render_template('new_post.html',title_error=title_error,
                    body_error=body_error,title=title, body=body)    
         else:
-            new_blog_entry = Blog(title,body,owner)
-            db.session.add(new_blog_entry)
+            blog = Blog(title,body,owner)
+            db.session.add(blog)
             db.session.commit()
-            blog_by_id = Blog.query.get(new_blog_entry.id)
-            title = blog_by_id.title
-            body = blog_by_id.body
-            return render_template('blog.html',title=title, body=body)
+            blog_id = Blog.query.get(blog.id)
+            title = blog_id.title
+            body = blog_id.body
+            owner = session['username']
+            owner_id = blog_id.owner_id
+            return render_template('blog.html',title=title, body=body,owner=owner,owner_id=owner_id)
     else:
         return render_template('new_post.html')
 
-@app.route('/all_blogs', methods=['GET'])
-def all_blog():
-    all_blogs = Blog.query.all()
-    return render_template('all_blogs.html', title="All Blogs", all_blogs=all_blogs)
-    
 @app.route('/blog', methods=['GET'])
 def blog():
-    blog_by_id = Blog.query.get(request.args.get('id'))
-    title = blog_by_id.title
-    body = blog_by_id.body
-    return render_template('blog.html',title=title, body=body)
-
-
+    if 'user' in request.args:
+        blog_owner = Blog.query.get(request.args.get('user'))
+        blog_by_user = Blog.query.filter_by(owner_id=blog_owner.id).all()
+        if not blog_by_user:
+            no_posts = 'No posts yet'
+            return render_template('singleuser.html',no_posts=no_posts)
+        return render_template('singleuser.html',blog_by_user=blog_by_user)
+        
+    if 'id' in request.args:
+        blog = Blog.query.get(request.args.get('id'))
+        title = blog.title
+        body = blog.body
+        blog_owner = User.query.filter_by(id=blog.owner_id).first()
+        owner = blog_owner.username
+        owner_id = blog_owner.id
+        return render_template('blog.html',title=title,body=body,owner=owner,owner_id=owner_id)
+    else:
+        all_blogs = Blog.query.all()
+        return render_template('all_blogs.html', title="All Blogs", all_blogs=all_blogs)
 
 if __name__ == '__main__':
     app.run()
